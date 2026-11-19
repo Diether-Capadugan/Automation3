@@ -1,0 +1,1091 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NETWATCH | Router Monitoring</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        /* =========================
+           THEME VARIABLES
+        ========================= */
+
+        :root {
+            --gradient: linear-gradient(135deg, #2563EB, #7C3AED);
+            --gradient-hover: linear-gradient(135deg, #1D4ED8, #6D28D9);
+
+            --background: #F1F5F9;
+            --surface: #FFFFFF;
+            --surface-hover: #F8FAFC;
+
+            --text-primary: #172033;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+
+            --border: #E2E8F0;
+
+            --sidebar: linear-gradient(180deg, #111B35, #1E1B4B);
+            --sidebar-text: #CBD5E1;
+            --sidebar-active: rgba(99, 102, 241, 0.25);
+
+            --terminal: #0B1224;
+            --terminal-text: #A5F3FC;
+
+            --success-bg: #DCFCE7;
+            --success-text: #15803D;
+
+            --error-bg: #FEE2E2;
+            --error-text: #B91C1C;
+
+            --shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+            --radius: 15px;
+        }
+
+        [data-theme="dark"] {
+            --background: #0B1120;
+            --surface: #151F33;
+            --surface-hover: #1C2940;
+
+            --text-primary: #F1F5F9;
+            --text-secondary: #A5B4C8;
+            --text-muted: #8494AB;
+
+            --border: #293750;
+
+            --sidebar: linear-gradient(180deg, #080F20, #171436);
+            --sidebar-text: #CBD5E1;
+            --sidebar-active: rgba(99, 102, 241, 0.3);
+
+            --terminal: #080E1B;
+            --terminal-text: #67E8F9;
+
+            --success-bg: #123B2B;
+            --success-text: #86EFAC;
+
+            --error-bg: #451D27;
+            --error-text: #FCA5A5;
+
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================
+           GENERAL
+        ========================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 27px 17px;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 9px;
+            margin-bottom: 45px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            background: var(--gradient);
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.35);
+        }
+
+        .brand h2 {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            font-size: 9px;
+            color: #A5B4FC;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-label {
+            color: #7786A5;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 0 12px;
+            margin-bottom: 14px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 14px;
+            margin-bottom: 7px;
+            border-radius: 10px;
+            color: var(--sidebar-text);
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .nav-item span {
+            font-size: 17px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+            border-left: 3px solid #818CF8;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 15px 7px 0;
+            color: #94A3B8;
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            padding: 32px 45px;
+            max-width: 1700px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 27px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .topbar p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* THEME BUTTON */
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .theme-toggle:hover {
+            border-color: #818CF8;
+            background: var(--surface-hover);
+        }
+
+        .theme-icon {
+            font-size: 17px;
+        }
+
+        .system-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 11px 15px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22C55E;
+            border-radius: 50%;
+        }
+
+        /* =========================
+           SECTION HEADINGS
+        ========================= */
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 17px;
+            color: var(--text-primary);
+        }
+
+        /* =========================
+           ROUTER INFORMATION CARDS
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: 0.25s;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient);
+            opacity: 0;
+            transition: 0.25s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #818CF8;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 19px;
+        }
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .blue {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .green {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+
+        .purple {
+            background: #EDE9FE;
+            color: #7C3AED;
+        }
+
+        .orange {
+            background: #FFEDD5;
+            color: #EA580C;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-size: 21px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .status-success {
+            color: #16A34A;
+        }
+
+        .status-error {
+            color: #EF4444;
+        }
+
+        .status-pending {
+            color: var(--text-muted);
+        }
+
+        .stat-description {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* =========================
+           GENERAL PANELS
+        ========================= */
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border 0.3s;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .panel-header h2 {
+            font-size: 17px;
+            color: var(--text-primary);
+        }
+
+        .panel-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .command-tag {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818CF8;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           EXECUTION BUTTON
+        ========================= */
+
+        .execute-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: inherit;
+            box-shadow: 0 5px 14px rgba(79, 70, 229, 0.2);
+        }
+
+        .execute-btn:hover {
+            background: var(--gradient-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .execute-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =========================
+           ALERT MESSAGES
+        ========================= */
+
+        .alert {
+            padding: 15px 18px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: var(--success-text);
+        }
+
+        .alert-error {
+            background: var(--error-bg);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: var(--error-text);
+        }
+
+        /* =========================
+           COMMAND RESULTS
+        ========================= */
+
+        .command-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: 0.2s;
+        }
+
+        .command-card:hover {
+            border-color: #818CF8;
+        }
+
+        .command-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .command-heading h3 {
+            font-size: 14px;
+            color: #818CF8;
+            font-weight: 700;
+        }
+
+        .terminal-label {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-bottom: 9px;
+        }
+
+        pre {
+            background: var(--terminal);
+            color: var(--terminal-text);
+            padding: 22px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        pre::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 17px;
+            border-radius: 18px;
+            background: rgba(99, 102, 241, 0.12);
+            color: #818CF8;
+            display: grid;
+            place-items: center;
+            font-size: 28px;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        /* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main {
+                padding: 30px 25px;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 17px;
+            }
+
+            .brand {
+                margin-bottom: 15px;
+            }
+
+            .nav-label,
+            .nav-item,
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 25px 15px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .topbar h1 {
+                font-size: 23px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+        }
+
+        @media (max-width: 380px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">⌘</div>
+
+            <div>
+                <h2>NETWATCH</h2>
+                <p>NETWORK MONITORING</p>
+            </div>
+
+        </div>
+
+        <div class="nav-label">MAIN MENU</div>
+
+        <a href="#dashboard" class="nav-item active">
+            <span>▦</span>
+            Dashboard
+        </a>
+
+        <a href="#router" class="nav-item">
+            <span>◈</span>
+            Router Information
+        </a>
+
+        <a href="#commands" class="nav-item">
+            <span>⌘</span>
+            Command Results
+        </a>
+
+        <div class="sidebar-bottom">
+            <p>NETWATCH v1.0</p>
+            <p>Cisco Router Automation</p>
+            <p>Powered by Flask & Netmiko</p>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main" id="dashboard">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+                <h1>Router Dashboard</h1>
+                <p>Monitor and manage your Cisco network device.</p>
+            </div>
+
+            <div class="topbar-actions">
+
+                <button class="theme-toggle" id="themeToggle"
+                        type="button" onclick="toggleTheme()">
+
+                    <span class="theme-icon" id="themeIcon">🌙</span>
+                    <span id="themeText">Dark Mode</span>
+
+                </button>
+
+                <div class="system-badge">
+                    <span class="status-dot"></span>
+                    SYSTEM READY
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ALERT MESSAGES -->
+
+        {% if success %}
+
+        <div class="alert alert-success">
+            ✓ Router connected successfully! All commands were executed.
+        </div>
+
+        {% endif %}
+
+        {% if error %}
+
+        <div class="alert alert-error">
+            <strong>Connection Error:</strong>
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- ROUTER OVERVIEW -->
+
+        <section id="router">
+
+            <h2 class="section-title">Router Overview</h2>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <div class="stat-icon blue">◈</div>
+                    </div>
+
+                    <div class="stat-label">DEVICE IP ADDRESS</div>
+
+                    <div class="stat-value">192.168.10.11</div>
+
+                    <div class="stat-description">
+                        Cisco Router
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <div class="stat-icon green">✓</div>
+                    </div>
+
+                    <div class="stat-label">CONNECTION STATUS</div>
+
+                    <div class="stat-value
+                        {% if success %}
+                            status-success
+                        {% elif error %}
+                            status-error
+                        {% else %}
+                            status-pending
+                        {% endif %}">
+
+                        {% if success %}
+                            Connected
+                        {% elif error %}
+                            Failed
+                        {% else %}
+                            Not checked
+                        {% endif %}
+
+                    </div>
+
+                    <div class="stat-description">
+                        Telnet connection
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <div class="stat-icon purple">⌘</div>
+                    </div>
+
+                    <div class="stat-label">TOTAL COMMANDS</div>
+
+                    <div class="stat-value">03</div>
+
+                    <div class="stat-description">
+                        Configured commands
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <div class="stat-icon orange">⇄</div>
+                    </div>
+
+                    <div class="stat-label">CONNECTION PORT</div>
+
+                    <div class="stat-value">32770</div>
+
+                    <div class="stat-description">
+                        Telnet protocol
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMMAND EXECUTION -->
+
+        <section>
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>Router Command Execution</h2>
+
+                    <span class="command-tag">NETMIKO</span>
+
+                </div>
+
+                <p class="panel-description">
+
+                    Connect to your Cisco router and automatically
+                    execute the configured commands to retrieve
+                    device information and configurations.
+
+                </p>
+
+                <form method="POST" id="commandForm">
+
+                    <button type="submit"
+                            class="execute-btn"
+                            id="executeBtn">
+
+                        ▶ &nbsp; Connect and Execute Commands
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMMAND RESULTS -->
+
+        <section id="commands">
+
+            <div class="panel-header">
+
+                <h2 class="section-title">Command Results</h2>
+
+                {% if results %}
+
+                <span class="command-tag">
+                    {{ results|length }} COMMANDS COMPLETED
+                </span>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if results %}
+
+                {% for command, output in results.items() %}
+
+                <div class="command-card">
+
+                    <div class="command-heading">
+
+                        <h3>{{ command }}</h3>
+
+                        <span class="command-tag">EXECUTED</span>
+
+                    </div>
+
+                    <p class="terminal-label">
+                        Router command output
+                    </p>
+
+                    <pre>{{ output }}</pre>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="panel">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">⌘</div>
+
+                        <h3>No Command Results Yet</h3>
+
+                        <p>
+                            Click the Execute Commands button above
+                            to retrieve information from your router.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            NETWATCH Router Monitoring System
+            <br>
+            Built with Python, Flask and Netmiko
+
+        </footer>
+
+    </main>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        /* =========================
+           DARK / LIGHT THEME
+        ========================= */
+
+        const html = document.documentElement;
+
+        const themeIcon = document.getElementById("themeIcon");
+        const themeText = document.getElementById("themeText");
+
+        // Load saved theme
+
+        function applyTheme(theme) {
+
+            html.setAttribute("data-theme", theme);
+
+            if (theme === "dark") {
+
+                themeIcon.textContent = "☀️";
+                themeText.textContent = "Light Mode";
+
+            } else {
+
+                themeIcon.textContent = "🌙";
+                themeText.textContent = "Dark Mode";
+
+            }
+
+        }
+
+        // Get saved theme or use light mode
+
+        let savedTheme = "light";
+
+        try {
+            savedTheme = localStorage.getItem("netwatch-theme") || "light";
+        } catch (error) {
+            console.warn("Theme preference could not be loaded.");
+        }
+
+        applyTheme(savedTheme);
+
+
+        // Switch theme when clicked
+
+        function toggleTheme() {
+
+            const currentTheme = html.getAttribute("data-theme");
+
+            const newTheme = currentTheme === "light"
+                ? "dark"
+                : "light";
+
+            applyTheme(newTheme);
+
+            try {
+                localStorage.setItem("netwatch-theme", newTheme);
+            } catch (error) {
+                console.warn("Theme preference could not be saved.");
+            }
+
+        }
+
+
+        /* =========================
+           BUTTON LOADING EFFECT
+        ========================= */
+
+        const form = document.getElementById("commandForm");
+
+        const button = document.getElementById("executeBtn");
+
+        form.addEventListener("submit", function() {
+
+            button.disabled = true;
+
+            button.innerHTML = "⏳ Connecting to Router... Please Wait";
+
+        });
+
+    </script>
+
+</body>
+</html>
